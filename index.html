@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palestine Token Mining</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://sad.adsgram.ai/js/adsgram-adbox.js"></script>
+    <style>
+        body { background: #121212; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; }
+        .card { background: #1e1e1e; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .balance { font-size: 35px; color: #00ff00; margin: 10px 0; font-weight: bold; }
+        .btn { background: #0088cc; color: white; border: none; padding: 15px; border-radius: 12px; font-size: 18px; width: 100%; cursor: pointer; margin-top: 10px; font-weight: bold; transition: 0.3s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-mining { background: #28a745; }
+        .btn-task { background: #6f42c1; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🇵🇸 محفظة فلسطين</h2>
+        <div class="balance" id="display-bal">50.00 PLT</div>
+        <p>جاري التعدين الرقمي...</p>
+    </div>
+
+    <div class="card">
+        <h3>💰 المهام السريعة</h3>
+        <button class="btn" onclick="showAd()">📺 شاهد فيديو (+5 PLT)</button>
+        <button class="btn btn-mining" onclick="startMining()">⛏ ابدأ التعدين اليومي</button>
+        <button class="btn btn-task" onclick="WebApp.openLink('https://t.me/your_channel')">📢 اشترك بقناتنا (+20 PLT)</button>
+    </div>
+
+    <script>
+        const WebApp = window.Telegram.WebApp;
+        WebApp.ready();
+        WebApp.expand();
+
+        // ربط الإعلانات برمزك الخاص
+        const AdController = window.Adsgram.init({ blockId: "28088" });
+
+        function showAd() {
+            AdController.show().then(() => {
+                WebApp.showAlert("مبروك! شاهدت الإعلان وحصلت على 5 عملات.");
+            }).catch(() => {
+                WebApp.showAlert("عذراً، لا يوجد إعلان متوفر لليمن حالياً.");
+            });
+        }
+
+        function startMining() {
+            WebApp.showConfirm("هل تريد بدء جلسة تعدين لمدة 24 ساعة؟", (ok) => {
+                if(ok) WebApp.showAlert("بدأ التعدين بنجاح! عد غداً لاستلام العملات.");
+            });
+        }
+    </script>
+</body>
+</html>
