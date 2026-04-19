@@ -1,47 +1,139 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-body { background: #121212; color: white; font-family: sans-serif; text-align: center; padding: 15px; margin: 0; }
-.card { background: #1e1e1e; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-bottom: 15px; }
-.balance { font-size: 35px; color: #00ff00; font-weight: bold; margin: 10px 0; }
-.btn { background: #0088cc; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
-.btn:disabled { background: #444; color: #888; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #00ff00; --bg: #0a0a0a; --card: #151515; --accent: #f39c12; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; user-select: none; }
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+        
+        /* رأس الصفحة والمحفظة */
+        .header { background: linear-gradient(145deg, #1a1a1a, #111); padding: 30px 20px; border-radius: 0 0 30px 30px; border-bottom: 2px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.5); margin-bottom: 25px; }
+        .balance-title { color: #888; font-size: 14px; margin-bottom: 5px; }
+        .balance-value { font-size: 48px; font-weight: 900; color: var(--primary); text-shadow: 0 0 15px rgba(0,255,0,0.3); }
+        
+        /* الأزرار الرئيسية */
+        .main-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .action-card { background: var(--card); padding: 15px; border-radius: 18px; border: 1px solid #333; transition: 0.3s; cursor: pointer; }
+        .action-card:active { transform: scale(0.95); background: #222; }
+        .action-card i { font-size: 24px; color: var(--accent); margin-bottom: 8px; }
+        .action-card div { font-size: 13px; font-weight: bold; }
+
+        /* قسم المهام المميز */
+        .section-title { text-align: right; font-size: 18px; margin: 20px 0 15px; color: #eee; border-right: 4px solid var(--primary); padding-right: 10px; }
+        .task-item { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; border: 1px solid #222; }
+        .task-icon { width: 45px; height: 45px; background: #222; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-left: 15px; font-size: 20px; color: var(--primary); }
+        .task-info { flex-grow: 1; text-align: right; }
+        .task-name { font-weight: bold; font-size: 15px; display: block; }
+        .task-reward { font-size: 12px; color: var(--primary); }
+        .claim-btn { background: var(--primary); color: black; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; font-size: 13px; }
+        
+        /* شريط التنقل السفلي مثل التطبيقات المشهورة */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #333; }
+        .nav-item { color: #666; font-size: 11px; text-decoration: none; text-align: center; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; }
+    </style>
 </head>
 <body>
-<div class="card">
-<h3>الرصيد</h3>
-<div class="balance" id="bal">0.00</div>
-<span>PLT</span>
-<button class="btn" style="background:#f39c12" onclick="daily()">🎁 مكافأة يومية (+5)</button>
+
+<div class="header">
+    <div class="balance-title">إجمالي رصيد PLT</div>
+    <div class="balance-value" id="user-balance">0.00</div>
+    <div style="margin-top: 10px;">
+        <span style="background: rgba(0,255,0,0.1); padding: 5px 12px; border-radius: 20px; font-size: 12px; color: var(--primary);">💎 رتبة: مبتدئ</span>
+    </div>
 </div>
-<div class="card">
-<button class="btn" onclick="mine(this)">⛏ تعدين (+2)</button>
-<button class="btn" style="background:#28a745" onclick="task(this,10,'https://t.me/your_channel')">📢 تابعنا (+10)</button>
+
+<div class="container">
+    <div class="main-actions">
+        <div class="action-card" onclick="claimDaily()">
+            <i class="fas fa-gift"></i>
+            <div>مكافأة يومية</div>
+        </div>
+        <div class="action-card" onclick="startMining(this)">
+            <i class="fas fa-hammer"></i>
+            <div>تعدين سريع</div>
+        </div>
+    </div>
+
+    <div class="section-title">المهام المتاحة</div>
+
+    <div class="task-item">
+        <div class="task-icon"><i class="fab fa-telegram"></i></div>
+        <div class="task-info">
+            <span class="task-name">انضم لقناتنا</span>
+            <span class="task-reward">+10.00 PLT</span>
+        </div>
+        <button class="claim-btn" onclick="doTask(this, 10, 'https://t.me/your_channel')">تنفيذ</button>
+    </div>
+
+    <div class="task-item">
+        <div class="task-icon"><i class="fas fa-users"></i></div>
+        <div class="task-info">
+            <span class="task-name">دعوة 5 أصدقاء</span>
+            <span class="task-reward">+50.00 PLT</span>
+        </div>
+        <button class="claim-btn" onclick="tg.showAlert('سيتم التفعيل قريباً')">دعوة</button>
+    </div>
 </div>
+
+<div style="height: 80px;"></div> <div class="nav-bar">
+    <div class="nav-item active"><i class="fas fa-home"></i>الرئيسية</div>
+    <div class="nav-item" onclick="tg.showAlert('قريباً')"><i class="fas fa-tasks"></i>المهام</div>
+    <div class="nav-item" onclick="tg.showAlert('قريباً')"><i class="fas fa-wallet"></i>المحفظة</div>
+    <div class="nav-item" onclick="tg.showAlert('قريباً')"><i class="fas fa-user-friends"></i>الأصدقاء</div>
+</div>
+
 <script>
-const tg = window.Telegram.WebApp;
-tg.ready(); tg.expand();
-let b = parseFloat(localStorage.getItem('p_b')) || 0;
-document.getElementById('bal').innerText = b.toFixed(2);
-function up(a) { b += a; localStorage.setItem('p_b', b); document.getElementById('bal').innerText = b.toFixed(2); }
-function daily() {
-const l = localStorage.getItem('l_d'), n = Date.now();
-if (l && (n - l < 86400000)) { tg.showAlert("عد بعد 24 ساعة"); }
-else { up(5); localStorage.setItem('l_d', n); tg.showAlert("تم استلام 5 عملات"); }
-}
-function mine(btn) {
-btn.disabled = true; btn.innerText = "جاري..";
-setTimeout(() => { up(2); tg.showAlert("انتهى التعدين (+2)"); btn.innerText = "تم ✅"; }, 5000);
-}
-function task(btn, r, link) {
-if(link) tg.openTelegramLink(link);
-setTimeout(() => { up(r); btn.disabled = true; btn.innerText = "تم ✅"; }, 2000);
-}
+    const tg = window.Telegram.WebApp;
+    tg.ready(); tg.expand();
+
+    let balance = parseFloat(localStorage.getItem('plt_balance')) || 0;
+    document.getElementById('user-balance').innerText = balance.toFixed(2);
+
+    function updateBalance(amount) {
+        balance += amount;
+        localStorage.setItem('plt_balance', balance);
+        document.getElementById('user-balance').innerText = balance.toFixed(2);
+    }
+
+    function claimDaily() {
+        const last = localStorage.getItem('last_daily');
+        const now = Date.now();
+        if (last && (now - last < 86400000)) {
+            tg.showAlert("عد غداً للمطالبة بالمكافأة!");
+        } else {
+            updateBalance(5);
+            localStorage.setItem('last_daily', now);
+            tg.showConfirm("مبروك! حصلت على 5 عملات مكافأة يومية.");
+        }
+    }
+
+    function startMining(el) {
+        el.style.opacity = '0.5';
+        el.innerHTML = '<i class="fas fa-spinner fa-spin"></i><div>جاري التعدين...</div>';
+        setTimeout(() => {
+            updateBalance(2);
+            el.style.opacity = '1';
+            el.innerHTML = '<i class="fas fa-hammer"></i><div>تعدين سريع</div>';
+            tg.showAlert("تمت إضافة 2 عملة لرصيدك!");
+        }, 3000);
+    }
+
+    function doTask(btn, reward, link) {
+        tg.openTelegramLink(link);
+        setTimeout(() => {
+            updateBalance(reward);
+            btn.innerText = "تمت ✅";
+            btn.disabled = true;
+            btn.style.background = "#333";
+            btn.style.color = "#888";
+        }, 5000);
+    }
 </script>
 </body>
 </html>
