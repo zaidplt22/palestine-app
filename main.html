@@ -7,104 +7,82 @@
     <script src="https://sad.adsgram.ai/js/sad.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #00ff88; --bg: #000; --card: #0c0c0c; }
-        body { background: var(--bg); color: white; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; user-select: none; overflow: hidden; }
-        
+        :root { --main: #f3ba2f; --bg: #000; --card: #1c1f24; }
+        body { background: var(--bg); color: white; font-family: 'Cairo', sans-serif; margin: 0; padding: 0; overflow: hidden; user-select: none; }
         .app { height: 100vh; display: flex; flex-direction: column; }
         .page { flex: 1; overflow-y: auto; padding: 20px; display: none; padding-bottom: 90px; }
-        .active { display: block; }
+        .active { display: flex !important; flex-direction: column; }
 
-        /* ترويسة الرصيد (مثل ZYN PI تماماً) */
-        .top-stats { text-align: center; background: linear-gradient(180deg, #111, #000); padding: 35px 15px; border-bottom: 2px solid var(--main); border-radius: 0 0 30px 30px; margin-bottom: 25px; }
-        .bal-value { font-size: 55px; font-weight: 900; color: var(--main); line-height: 1; text-shadow: 0 0 20px rgba(0,255,136,0.3); }
-        .bal-unit { font-size: 14px; color: #666; font-weight: bold; margin-top: 10px; letter-spacing: 2px; }
+        /* الرصيد العلوي */
+        .balance-section { text-align: center; padding: 20px; background: linear-gradient(180deg, #111, #000); border-bottom: 2px solid var(--main); }
+        .bal-amount { font-size: 45px; font-weight: 900; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .bal-amount img { width: 40px; }
 
-        /* زر التعدين (تصميم الدائرة الاحترافي) */
-        .mine-container { width: 230px; height: 230px; background: radial-gradient(circle, #1a1a1a, #000); border-radius: 50%; margin: 30px auto; border: 5px solid #1a1a1a; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 40px rgba(0,0,0,1); position: relative; }
-        .mining-active { border-color: var(--main); box-shadow: 0 0 30px rgba(0,255,136,0.2); }
-        .mine-container i { font-size: 70px; color: #222; }
-        .mining-active i { color: var(--main); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        /* منطقة التعدين */
+        .mine-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .main-btn { width: 220px; height: 220px; background: radial-gradient(circle, #2b2f36, #000); border-radius: 50%; border: 8px solid #222; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .main-btn.active-mining { border-color: var(--main); box-shadow: 0 0 20px rgba(243, 186, 47, 0.2); }
+        .main-btn img { width: 140px; }
 
-        /* قائمة المهام (مطابقة لصور ZYN PI) */
-        .task-list { margin-top: 10px; }
-        .task-card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; border: 1px solid #151515; }
-        .task-icon { width: 45px; font-size: 26px; color: var(--main); display: flex; justify-content: center; }
-        .task-info { flex: 1; text-align: right; margin: 0 15px; }
-        .task-name { font-weight: bold; font-size: 15px; color: #fff; display: block; }
-        .task-reward { font-size: 13px; color: var(--main); font-weight: bold; margin-top: 3px; }
-        .btn-go { background: #1a1a1a; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 80px; }
-        .btn-go.special { background: var(--main); color: black; }
-        .btn-go:disabled { color: #444; background: #080808; }
+        /* المهام والإحالات */
+        .task-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #2d333b; }
+        .task-info { display: flex; align-items: center; gap: 12px; text-align: right; }
+        .task-icon { width: 40px; height: 40px; background: #2b2f36; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: var(--main); font-size: 20px; }
+        .claim-btn { background: var(--main); color: black; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .claim-btn:disabled { background: #333; color: #777; }
 
-        /* المحفظة */
-        .wallet-info { background: #080808; border: 1px dashed #333; padding: 25px; border-radius: 20px; text-align: center; margin-top: 20px; }
-
-        /* التنقل السفلي */
-        .nav { position: fixed; bottom: 0; width: 100%; background: #050505; display: flex; padding: 15px 0; border-top: 1px solid #111; z-index: 1000; }
-        .nav-tab { flex: 1; text-align: center; color: #444; font-size: 11px; cursor: pointer; transition: 0.3s; }
-        .nav-tab.active-tab { color: var(--main); transform: translateY(-3px); }
-        .nav-tab i { font-size: 24px; display: block; margin-bottom: 5px; }
+        /* الناف بار */
+        .navbar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; padding: 12px 0; border-top: 1px solid #222; }
+        .nav-item { flex: 1; text-align: center; color: #888; font-size: 11px; cursor: pointer; }
+        .nav-item.active-nav { color: var(--main); }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
 <div class="app">
-    <div id="mine-page" class="page active">
-        <div class="top-stats">
-            <div class="bal-value" id="val1">0.00</div>
-            <div class="bal-unit">PALESTINE NETWORK (PLT)</div>
+    <div id="p-mine" class="page active">
+        <div class="balance-section">
+            <div class="bal-amount"><img src="https://cryptologos.cc/logos/hamster-kombat-hmstr-logo.png"> <span id="total-bal">0</span></div>
+            <div style="color: #666; font-size: 12px; margin-top: 5px;">إجمالي عملات PALESTINE</div>
         </div>
-        <div class="mine-container" id="m-btn" onclick="startMining()">
-            <i class="fas fa-hammer"></i>
-            <span id="m-status" style="margin-top:15px; font-size: 13px; color: #444; font-weight: bold;">START FARMING</span>
-            <div id="m-timer" style="color: var(--main); font-size: 20px; font-weight: 900; margin-top: 5px; font-family: monospace;"></div>
-        </div>
-        <p style="text-align: center; color: #333; font-size: 11px; margin-top: 20px;">TAPPING NOT SUPPORTED IN THIS VERSION</p>
-    </div>
-
-    <div id="tasks-page" class="page">
-        <h3 style="text-align: right; margin: 0 0 20px 0; letter-spacing: 1px;">المهام اليومية</h3>
-        <div class="task-list">
-            <div class="task-card">
-                <div class="task-icon"><i class="fas fa-play-circle"></i></div>
-                <div class="task-info"><span class="task-name">مشاهدة إعلان فيديو كامل</span><span class="task-reward">+1.50 PLT</span></div>
-                <button class="btn-go special" onclick="triggerAd(this)">مشاهدة</button>
+        <div class="mine-area">
+            <div class="main-btn" id="m-btn" onclick="startMining()">
+                <img src="https://cryptologos.cc/logos/hamster-kombat-hmstr-logo.png">
+                <div id="m-timer" style="color: var(--main); font-weight: 900; font-size: 20px; margin-top: 10px;">ابدأ التعدين</div>
             </div>
-            <div class="task-card">
-                <div class="task-icon"><i class="fab fa-telegram" style="color:#24A1DE"></i></div>
-                <div class="task-info"><span class="task-name">انضم لقناة التحديثات</span><span class="task-reward">+2.00 PLT</span></div>
-                <button class="btn-go" onclick="openSocial(this, 2.0, 'https://t.me/PalestinePLT')">انضمام</button>
-            </div>
-            <div class="task-card">
-                <div class="task-icon"><i class="fab fa-youtube" style="color:#ff0000"></i></div>
-                <div class="task-info"><span class="task-name">اشترك في قناة اليوتيوب</span><span class="task-reward">+5.00 PLT</span></div>
-                <button class="btn-go" onclick="openSocial(this, 5.0, 'https://youtube.com')">اشتراك</button>
-            </div>
-            <div class="task-card">
-                <div class="task-icon"><i class="fab fa-twitter" style="color:#1DA1F2"></i></div>
-                <div class="task-info"><span class="task-name">متابعة حسابنا على X</span><span class="task-reward">+3.00 PLT</span></div>
-                <button class="btn-go" onclick="openSocial(this, 3.0, 'https://x.com')">متابعة</button>
-            </div>
+            <p id="m-status" style="color: #555; font-size: 12px; margin-top: 15px;">دورة التعدين: 24 ساعة</p>
         </div>
     </div>
 
-    <div id="wallet-page" class="page">
-        <h3 style="text-align: right;">المحفظة والسحب</h3>
-        <div class="top-stats">
-            <div class="bal-value" id="val2">0.00</div>
-            <div class="bal-unit">WITHDRAWABLE PLT</div>
+    <div id="p-tasks" class="page">
+        <h3 style="text-align: right;">المهام اليومية (أرباح ضخمة)</h3>
+        <div class="task-card">
+            <div class="task-info"><div class="task-icon"><i class="fas fa-ad"></i></div><div><b>مشاهدة إعلان</b><br><small style="color:var(--main)">+10,000</small></div></div>
+            <button class="claim-btn" onclick="showAds()">مشاهدة</button>
         </div>
-        <div class="wallet-info">
-            <p style="color:#555; font-size:12px;">سيتم تفعيل سحب الأرباح تلقائياً فور وصولك إلى 5000 عملة PLT</p>
-            <button class="btn-go" style="width:100%; height:55px; font-size:16px;" onclick="tg.showAlert('رصيدك الحالي لا يسمح بالسحب')">سحب العملات</button>
+        <div class="task-card">
+            <div class="task-info"><div class="task-icon"><i class="fab fa-telegram"></i></div><div><b>انضم للقناة</b><br><small style="color:var(--main)">+25,000</small></div></div>
+            <button class="claim-btn" onclick="doTask(this, 25000, 'https://t.me/PalestinePLT')">انضمام</button>
+        </div>
+        <div class="task-card">
+            <div class="task-info"><div class="task-icon"><i class="fab fa-youtube"></i></div><div><b>اشترك باليوتيوب</b><br><small style="color:var(--main)">+50,000</small></div></div>
+            <button class="claim-btn" onclick="doTask(this, 50000, 'https://youtube.com')">اشتراك</button>
         </div>
     </div>
 
-    <nav class="nav">
-        <div class="nav-tab active-tab" onclick="switchTab('mine-page', this)"><i class="fas fa-hammer"></i><span>تعدين</span></div>
-        <div class="nav-tab" onclick="switchTab('tasks-page', this)"><i class="fas fa-tasks"></i><span>المهام</span></div>
-        <div class="nav-tab" onclick="switchTab('wallet-page', this)"><i class="fas fa-wallet"></i><span>المحفظة</span></div>
+    <div id="p-ref" class="page">
+        <h3 style="text-align: right;">نظام الإحالات</h3>
+        <div class="task-card" style="flex-direction: column; gap: 15px; text-align: center;">
+            <p>اربح 50,000 عملة عن كل صديق تدعوه!</p>
+            <button class="claim-btn" style="width: 100%;" onclick="invite()">دعوة الأصدقاء</button>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-item active-nav" onclick="go('p-mine', this)"><i class="fas fa-hammer"></i><span>تعدين</span></div>
+        <div class="nav-item" onclick="go('p-tasks', this)"><i class="fas fa-tasks"></i><span>المهام</span></div>
+        <div class="nav-item" onclick="go('p-ref', this)"><i class="fas fa-users"></i><span>الأصدقاء</span></div>
     </nav>
 </div>
 
@@ -112,84 +90,76 @@
     const tg = window.Telegram.WebApp;
     tg.ready(); tg.expand();
 
-    // ربط Adsgram باستخدام الـ ID الخاص بك من الصورة
-    const Ads = window.Adsgram ? window.Adsgram.init({ blockId: "bot-28088" }) : null;
+    const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "bot-28088" }) : null;
 
-    let bal = parseFloat(localStorage.getItem('plt_total')) || 0;
-    let end = localStorage.getItem('plt_end_time');
+    let balance = parseInt(localStorage.getItem('plt_bal')) || 0;
+    let endTime = localStorage.getItem('plt_end');
 
     function refresh() {
-        document.getElementById('val1').innerText = bal.toFixed(2);
-        document.getElementById('val2').innerText = bal.toFixed(2);
-        localStorage.setItem('plt_total', bal);
+        document.getElementById('total-bal').innerText = balance.toLocaleString();
+        localStorage.setItem('plt_bal', balance);
     }
     refresh();
 
-    function switchTab(id, el) {
+    function go(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active-tab'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-nav'));
         document.getElementById(id).classList.add('active');
-        el.classList.add('active-tab');
+        el.classList.add('active-nav');
     }
 
-    async function triggerAd(btn) {
-        if (!Ads) return tg.showAlert("تحميل الإعلانات... حاول مجدداً");
+    async function showAds() {
+        if (!AdController) return;
         try {
-            await Ads.show();
-            bal += 1.50;
-            refresh();
-            tg.showAlert("مبروك! تمت إضافة 1.50 PLT بنجاح.");
-        } catch(e) { 
-            tg.showAlert("لا يوجد إعلانات حالياً، جرب بعد قليل"); 
-        }
+            await AdController.show();
+            balance += 10000; refresh();
+            tg.showAlert("تمت إضافة 10,000 عملة!");
+        } catch(e) { tg.showAlert("لا يوجد إعلانات حالياً"); }
     }
 
-    function openSocial(btn, reward, link) {
-        tg.openLink(link);
+    function doTask(btn, amt, url) {
+        tg.openLink(url);
         setTimeout(() => {
-            bal += reward;
-            refresh();
-            btn.innerText = "تم ✅";
-            btn.disabled = true;
-            btn.style.background = "#050505";
-        }, 4000);
+            balance += amt; refresh();
+            btn.disabled = true; btn.innerText = "تم ✅";
+        }, 5000);
     }
 
     function startMining() {
-        if (end && Date.now() < end) return;
-        end = Date.now() + (24 * 60 * 60 * 1000);
-        localStorage.setItem('plt_end_time', end);
-        miningLoop();
+        if (endTime && Date.now() < endTime) return;
+        endTime = Date.now() + (24 * 60 * 60 * 1000);
+        localStorage.setItem('plt_end', endTime);
+        updateMining();
     }
 
-    function miningLoop() {
+    function updateMining() {
         const btn = document.getElementById('m-btn');
         const timer = document.getElementById('m-timer');
-        const status = document.getElementById('m-status');
-        if (!end || Date.now() >= end) return;
+        if (!endTime || Date.now() >= endTime) return;
 
-        btn.classList.add('mining-active');
-        status.innerText = "FARMING...";
-
-        const interval = setInterval(() => {
-            const diff = end - Date.now();
+        btn.classList.add('active-mining');
+        const itv = setInterval(() => {
+            const diff = endTime - Date.now();
             if (diff <= 0) {
-                clearInterval(interval);
-                btn.classList.remove('mining-active');
-                status.innerText = "START FARMING";
-                timer.innerText = "";
+                clearInterval(itv);
+                btn.classList.remove('active-mining');
+                timer.innerText = "ابدأ التعدين";
             } else {
                 const h = Math.floor(diff/3600000);
                 const m = Math.floor((diff%3600000)/60000);
                 const s = Math.floor((diff%60000)/1000);
                 timer.innerText = `${h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-                bal += 0.00005; // معدل التعدين التلقائي
-                refresh();
+                balance += 10; refresh(); // ربح تلقائي أثناء التعدين
             }
         }, 1000);
     }
 
-    if (end) miningLoop();
+    function invite() {
+        const text = "ابدأ التعدين معي في بوت فلسطين واربح آلاف العملات!";
+        tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/PalestinePLT_bot&text=${text}`);
+    }
+
+    if (endTime) updateMining();
 </script>
 </body>
 </html>
